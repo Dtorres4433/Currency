@@ -1,6 +1,7 @@
 package com.example.currencyconverter
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.appbar.MaterialToolbar
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnNavigationItemSelectedListener {
     lateinit var drawerLayout: DrawerLayout
     lateinit var toolbar: MaterialToolbar
 
@@ -29,4 +30,16 @@ class MainActivity : AppCompatActivity() {
             insets
         }
     }
+}
+
+interface OnNavigationItemSelectedListener {
+    fun onNavigationItemSelected(item: MenuItem): Boolean{
+        var tittleId: Int = getTiitle(item)
+        return false
+    }
+
+    fun getTiitle(menuItem: MenuItem): Int {
+        return 0
+    }
+
 }

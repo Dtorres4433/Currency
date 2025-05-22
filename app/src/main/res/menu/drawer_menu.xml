@@ -3,21 +3,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-    <group android:checkableBehavior="single">
+   <item android:title="Options">
+       <menu>
+           <group android:checkableBehavior="single">
 
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/currency_exchange"
-            android:title="Converter" />
+               <item
+                   android:id="@+id/nav_camera"
+                   android:icon="@drawable/currency_exchange"
+                   android:title="Converter" />
 
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/photo_camera"
-            android:title="Exchange from Photo" />
+               <item
+                   android:id="@+id/nav_gallery"
+                   android:icon="@drawable/photo_camera"
+                   android:title="Exchange from Photo" />
 
-        <item
-            android:id="@+id/nav_tools"
-            android:icon="@drawable/history"
-            android:title="Historial" />
-    </group>
+               <item
+                   android:id="@+id/nav_tools"
+                   android:icon="@drawable/history"
+                   android:title="Historial" />
+           </group>
+       </menu>
+   </item>
 </menu>
