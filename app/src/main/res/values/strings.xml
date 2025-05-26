@@ -4,4 +4,7 @@
     <string name="navigation_drawer_close">Close</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="converter">Converter</string>
+    <string name="exchange_from_photo">Exchange from Photo</string>
+    <string name="historial">Historial</string>
 </resources>
