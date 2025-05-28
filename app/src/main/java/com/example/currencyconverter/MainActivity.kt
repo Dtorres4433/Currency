@@ -1,5 +1,6 @@
 package com.example.currencyconverter
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
@@ -10,13 +11,14 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.FragmentContainerView
 import com.example.currencyconverter.Fragments.CurrencyFragment
+import com.example.currencyconverter.Fragments.ExchangeFragment
+import com.example.currencyconverter.Fragments.HistorialFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
 lateinit var drawerLayout: DrawerLayout
-lateinit var fragentView: FragmentContainerView
+lateinit var navigationView: NavigationView
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var toolbar: MaterialToolbar
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +36,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        setNavigationView()
+    }
+
+
+    /**
+     * Initializes the NavigationView and sets its item selected listener.
+     */
+    private fun setNavigationView() {
+        navigationView = findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -43,7 +55,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
     private fun showFragment(@StringRes tittleId: Int){
-        val fragment = CurrencyFragment.newInstance()
+        val fragment = when (tittleId) {
+            R.string.converter -> CurrencyFragment.newInstance()
+            R.string.exchange_from_photo -> ExchangeFragment.newInstance()
+            R.string.historial -> HistorialFragment.newInstance()
+            else -> throw IllegalArgumentException("Unknown title ID: $tittleId")
+        }
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_view, fragment)
             .commit()
@@ -55,6 +72,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_history -> R.string.historial
             else -> throw IllegalArgumentException("Unknown menu item: ${menuItem.itemId}")
         }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        @Suppress("DEPRECATION")
+        val activeNetwork = cm.activeNetworkInfo
+        @Suppress("DEPRECATION")
+        return activeNetwork != null && activeNetwork.isConnected
     }
 }
 
