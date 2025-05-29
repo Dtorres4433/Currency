@@ -40,9 +40,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    /**
-     * Initializes the NavigationView and sets its item selected listener.
-     */
+    /*Initializes the NavigationView and sets its item selected listener.*/
     private fun setNavigationView() {
         navigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
