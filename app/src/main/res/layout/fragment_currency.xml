@@ -32,7 +32,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/poppins_regular"
-            android:text="Check lives rates and convert currencies easily."
+            android:text="Check lives rates and convert currencyTable easily."
             android:textSize="16sp"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"

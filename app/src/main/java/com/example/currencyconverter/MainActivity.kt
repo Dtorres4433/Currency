@@ -2,6 +2,7 @@ package com.example.currencyconverter
 
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
@@ -11,14 +12,26 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.currencyconverter.Adapters.DatabaseAdapter
+import com.example.currencyconverter.Adapters.RetrofitAdapter
+import com.example.currencyconverter.Classes.Currencies
+import com.example.currencyconverter.Classes.convertMapToCurrencyList
 import com.example.currencyconverter.Fragments.CurrencyFragment
 import com.example.currencyconverter.Fragments.ExchangeFragment
 import com.example.currencyconverter.Fragments.HistorialFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 lateinit var drawerLayout: DrawerLayout
 lateinit var navigationView: NavigationView
+
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var toolbar: MaterialToolbar
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,12 +44,85 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toogle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toogle)
         toogle.syncState()
+        //Initialize the database
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
         setNavigationView()
+        getCurrencies()
+    }
+
+    private fun getCurrencies() {
+        val retrofitAdapter = RetrofitAdapter()
+        val apiService = retrofitAdapter.getRetrofit().create(ApiServices::class.java)
+        val call = apiService.getCurrencies()
+        call.enqueue(object: Callback<Map<String, String>>{
+            override fun onResponse(call: Call<Map<String, String>?>, response: Response<Map<String, String>?>) {
+                val currecyDB = DatabaseAdapter.getDatabase(this@MainActivity)
+                if (response.isSuccessful) {
+                    // HTTP status code is in the 200-299 range
+                    val responseData: Map<String, String>? = response.body()
+                    if (responseData != null) {
+                        Log.d("API_SUCCESS", "Data received: $responseData")
+                        val currencyList = convertMapToCurrencyList(responseData)
+                        for (currency in currencyList) {
+                            val currencies = Currencies(0,currency.code, currency.name,
+                                getCurrencySymbol(currency.code).toString()
+                            )
+                            GlobalScope.launch(Dispatchers.IO) {
+                                currecyDB.currencyDao().insertCurrency(currencies)
+                            }
+                        }
+                    } else {
+                        Log.w("API_SUCCESS_NO_BODY", "Response successful but body was null. Code: ${response.code()}")
+                    }
+                } else {
+                    val errorCode = response.code()
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("API_ERROR", "Request failed with code: $errorCode. Error body: $errorBody")
+
+                    when (errorCode) {
+                        400 -> {
+                            Log.e("API_ERROR_400", "Bad Request: $errorBody")
+                        }
+                        401 -> {
+                            Log.e("API_ERROR_401", "Unauthorized: $errorBody")
+                        }
+                        403 -> {
+                            Log.e("API_ERROR_403", "Forbidden: $errorBody")
+                        }
+                        404 -> {
+                            Log.e("API_ERROR_404", "Not Found: $errorBody")
+                        }
+                        // Server Errors (5xx)
+                        500 -> {
+                            Log.e("API_ERROR_500", "Internal Server Error: $errorBody")
+                        }
+                        502 -> {
+                            Log.e("API_ERROR_502", "Bad Gateway: $errorBody")
+                        }
+                        503 -> {
+                            Log.e("API_ERROR_503", "Service Unavailable: $errorBody")
+                        }
+
+                        else -> {
+                            Log.w("API_ERROR_UNKNOWN", "Unhandled error code: $errorCode. Body: $errorBody")
+                        }
+                    }
+                }
+            }
+
+            private fun getCurrencySymbol(currencyCode: String) {
+                java.util.Currency.getInstance(currencyCode).symbol
+            }
+
+            override fun onFailure(call: Call<Map<String, String>?>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
 
