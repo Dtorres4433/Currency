@@ -15,7 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.example.currencyconverter.Adapters.DatabaseAdapter
 import com.example.currencyconverter.Adapters.RetrofitAdapter
 import com.example.currencyconverter.Classes.Currencies
-import com.example.currencyconverter.Classes.convertMapToCurrencyList
+import com.example.currencyconverter.Classes.Currency
 import com.example.currencyconverter.Fragments.CurrencyFragment
 import com.example.currencyconverter.Fragments.ExchangeFragment
 import com.example.currencyconverter.Fragments.HistorialFragment
@@ -58,27 +58,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val retrofitAdapter = RetrofitAdapter()
         val apiService = retrofitAdapter.getRetrofit().create(ApiServices::class.java)
         val call = apiService.getCurrencies()
-        call.enqueue(object: Callback<Map<String, String>>{
-            override fun onResponse(call: Call<Map<String, String>?>, response: Response<Map<String, String>?>) {
+        call.enqueue(object : Callback<Currency> {
+            override fun onResponse(call: Call<Currency?>,response: Response<Currency?>) {
                 val currecyDB = DatabaseAdapter.getDatabase(this@MainActivity)
                 if (response.isSuccessful) {
-                    // HTTP status code is in the 200-299 range
-                    val responseData: Map<String, String>? = response.body()
+                    val responseData = response.body()?.supportedCodes
                     if (responseData != null) {
                         Log.d("API_SUCCESS", "Data received: $responseData")
-                        val currencyList = convertMapToCurrencyList(responseData)
-                        for (currency in currencyList) {
-                            val currencies = Currencies(0,currency.code, currency.name,
-                                getCurrencySymbol(currency.code).toString()
-                            )
+                        for(currency in responseData) {
+                            val currencies = Currencies(currencyCode = currency.code, currencyName = currency.name, currencySymbol = getCurrencySymbol(currency.code))
                             GlobalScope.launch(Dispatchers.IO) {
                                 currecyDB.currencyDao().insertCurrency(currencies)
                             }
                         }
-                    } else {
+                    }else {
                         Log.w("API_SUCCESS_NO_BODY", "Response successful but body was null. Code: ${response.code()}")
                     }
-                } else {
+                }else {
                     val errorCode = response.code()
                     val errorBody = response.errorBody()?.string()
                     Log.e("API_ERROR", "Request failed with code: $errorCode. Error body: $errorBody")
@@ -113,15 +109,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
             }
-
-            private fun getCurrencySymbol(currencyCode: String) {
-                java.util.Currency.getInstance(currencyCode).symbol
+            private fun getCurrencySymbol(currencyCode: String):String {
+                return java.util.Currency.getInstance(currencyCode).symbol
             }
 
-            override fun onFailure(call: Call<Map<String, String>?>, t: Throwable) {
+            override fun onFailure(call: Call<Currency?>,t: Throwable) {
                 TODO("Not yet implemented")
             }
-
         })
     }
 

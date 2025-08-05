@@ -1,10 +1,12 @@
 package com.example.currencyconverter.Classes
 
 data class Currency(
-    val code: String,
-    val name: String,
+    val result: String,
+    val documentation: String,
+    val termsOfUse: String,
+    val supportedCodes: List<CurrencyCode>
 )
-
-fun convertMapToCurrencyList(currencyMap: Map<String, String>): List<Currency> {
-    return currencyMap.map { (code, name) -> Currency(code, name) }
-}
+data class CurrencyCode(
+    val code: String,
+    val name: String
+)

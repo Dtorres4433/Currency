@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RetrofitAdapter {
     fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://openexchangerates.org/api/")
+            .baseUrl("https://v6.exchangerate-api.com/v6/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
