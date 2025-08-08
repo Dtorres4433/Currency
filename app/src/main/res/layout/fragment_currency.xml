@@ -113,10 +113,12 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:inputType="none"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
+                    android:id="@+id/swap_button"
                     style="@style/Widget.Material3.Button.IconButton.Filled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -154,7 +156,8 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:inputType="none"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -209,7 +212,6 @@
             android:layout_height="0dp"
             android:layout_marginStart="24dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="1 SGD = 0.7367 USD"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -7,16 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import com.example.currencyconverter.Adapters.DatabaseAdapter
 import com.example.currencyconverter.Adapters.RetrofitAdapter
 import com.example.currencyconverter.ApiServices
+import com.example.currencyconverter.Classes.Currencies
 import com.example.currencyconverter.Classes.Rates
 import com.example.currencyconverter.R
 import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.text.toDouble
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,7 +35,17 @@ import retrofit2.Response
 class CurrencyFragment : Fragment() {
     // TODO: Rename and change types of parameters
 
-    @SuppressLint("SetTextI18n")
+    private lateinit var resultCode: String
+    private lateinit var resultSymbol: String
+
+    private lateinit var baseCode: String
+    private lateinit var baseSymbol: String
+
+    private var positionSelectedCurrency: Int = 0
+    private var positionSelectedCurrency2: Int = 0
+
+
+    @SuppressLint("SetTextI18n", "DefaultLocale")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val autocomplete = view.findViewById<AutoCompleteTextView>(R.id.currency1)
@@ -39,9 +53,7 @@ class CurrencyFragment : Fragment() {
         val textInputEditTextBase = view.findViewById<TextInputEditText>(R.id.amount_input)
         val textInputEditTextResult = view.findViewById<TextInputEditText>(R.id.converted_amount)
         val convertButton = view.findViewById<View>(R.id.button)
-        var baseCode: String? = null
-        var resultCode: String? = null
-        var resultSymbol: String? = null
+        val swapButton = view.findViewById<View>(R.id.swap_button)
         val currencyLiveData = DatabaseAdapter.getDatabase(requireContext()).currencyDao().getAllCurrencies()
         currencyLiveData.observe(viewLifecycleOwner) { currencyList ->
             val adapter = ArrayAdapter(
@@ -52,11 +64,14 @@ class CurrencyFragment : Fragment() {
             autocomplete.setAdapter(adapter)
             autocomplete2.setAdapter(adapter)
             autocomplete.setOnItemClickListener { parent, view, position, id ->
+                positionSelectedCurrency = position
                 val selectedCurrency = currencyList[position]
                 autocomplete.setText(selectedCurrency.currencyName, false)
                 baseCode = selectedCurrency.currencyCode
+                baseSymbol = selectedCurrency.currencySymbol ?: ""
             }
             autocomplete2.setOnItemClickListener { parent, view, position, id ->
+                positionSelectedCurrency2 = position
                 val selectedCurrency2 = currencyList[position]
                 autocomplete2.setText(selectedCurrency2.currencyName, false)
                 resultCode = selectedCurrency2.currencyCode
@@ -66,34 +81,64 @@ class CurrencyFragment : Fragment() {
         convertButton.setOnClickListener {
             val amount = textInputEditTextBase.text.toString().toDoubleOrNull()
             if (amount != null && baseCode != null && resultCode != null) {
-                val retrofitAdapter = RetrofitAdapter()
-                val apiService = retrofitAdapter.getRetrofit().create(ApiServices::class.java)
-                val call = apiService.getLatestRates(base = baseCode, target = resultCode)
-                call.enqueue(object : Callback<Rates> {
-                    override fun onResponse(call: Call<Rates>, response: Response<Rates>) {
-                        if (response.isSuccessful) {
-                            val responseBody = response.body()
-                            if (responseBody != null) {
-                                val rate = responseBody.conversion_rate
-                                val convertedAmount = amount * rate
-                                val formattedAmount = String.format("%.2f", convertedAmount)
-                                textInputEditTextResult.setText("$resultSymbol $formattedAmount")
-                            } else {
-                                textInputEditTextResult.setText("No data received")
-                            }
-                        }
-                    }
-
-                    override fun onFailure(call: Call<Rates?>, t: Throwable) {
-                        TODO("Not yet implemented")
-                    }
-                })
+                getExchange(baseCode, resultCode) { rate ->
+                    val convertedAmount = amount * rate
+                    val formattedAmount = String.format("%.2f", convertedAmount)
+                    textInputEditTextResult.setText("$resultSymbol $formattedAmount")
+                }
             } else {
-
                 textInputEditTextResult.setText("Invalid input")
             }
         }
+        swapButton.setOnClickListener {
+            swichtExchange( autocomplete, autocomplete2, currencyLiveData)
+        }
+    }
 
+    private fun getExchange(baseCode: String, resultCode: String, onResult: (Double) -> Unit) {
+        val textExchangeRate = requireView().findViewById<TextView>(R.id.textView4)
+        val retrofitAdapter = RetrofitAdapter()
+        val apiService = retrofitAdapter.getRetrofit().create(ApiServices::class.java)
+        val call = apiService.getLatestRates(base = baseCode, target = resultCode)
+        call.enqueue(object : Callback<Rates> {
+            @SuppressLint("SetTextI18n")
+            override fun onResponse(call: Call<Rates>, response: Response<Rates>) {
+                val rate = response.body()?.conversion_rate ?: 0.0
+                textExchangeRate.text = "1 $baseCode = $rate $resultCode"
+                onResult(rate)
+            }
+            override fun onFailure(call: Call<Rates>, t: Throwable) {
+                onResult(0.0)
+            }
+        })
+    }
+
+    @SuppressLint("DefaultLocale", "SetTextI18n")
+    private fun swichtExchange(autocomplete: AutoCompleteTextView,autocomplete2: AutoCompleteTextView,currencyLiveData: LiveData<List<Currencies>>) {
+        val textInputEditTextBase = requireView().findViewById<TextInputEditText>(R.id.amount_input)
+        val textInputEditTextResult = requireView().findViewById<TextInputEditText>(R.id.converted_amount)
+        val amount = textInputEditTextBase.text.toString().toDoubleOrNull() ?: return
+        val currencyList = currencyLiveData.value ?: return
+        val tempPos = positionSelectedCurrency
+        val tempPos2 = positionSelectedCurrency2
+        val temp = currencyList[tempPos]
+        val temp2 = currencyList[tempPos2]
+        // Swap the selected currencies
+        autocomplete.setText(temp2.currencyName, false)
+        autocomplete2.setText(temp.currencyName, false)
+        // Update the base and result codes
+        baseCode = temp2.currencyCode
+        resultCode = temp.currencyCode
+        baseSymbol = temp2.currencySymbol ?: ""
+        resultSymbol = temp.currencySymbol ?: ""
+        positionSelectedCurrency = tempPos2
+        positionSelectedCurrency2 = tempPos
+        //Convert the amounts
+        getExchange(baseCode, resultCode) { rate ->
+            val convertedAmount = amount * rate
+            val formattedAmount = String.format("%.2f", convertedAmount)
+            textInputEditTextResult.setText("$resultSymbol $formattedAmount")
+        }
     }
 
     override fun onCreateView(
