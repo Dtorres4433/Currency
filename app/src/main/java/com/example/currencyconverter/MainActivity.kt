@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call<Currency?>,response: Response<Currency?>) {
                 val currecyDB = DatabaseAdapter.getDatabase(this@MainActivity)
                 if (response.isSuccessful) {
-                    val responseData = response.body()?.supported_codes
+                    val responseData = response.body()?.suportedCodes
                     if (responseData != null) {
                         Log.d("GET_CODES_API_SUCCESS", "Data received: $responseData")
 
