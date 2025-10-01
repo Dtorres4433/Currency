@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (response.isSuccessful) {
                     val responseData = response.body()?.suportedCodes
                     if (responseData != null) {
-                        Log.d("GET_CODES_API_SUCCESS", "Data received: $responseData")
+                        Log.i("GET_CODES_API_SUCCESS", "Fetched ${responseData.size} currencies from API.")
 
                     }else {
                         Log.w("GET_CODES_API_SUCCESS_NO_BODY", "Response successful but body was null. Code: ${response.code()}")

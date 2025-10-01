@@ -8,10 +8,17 @@ data class Currency(
     @SerializedName("terms_of_use")
     val termsOfUse: String,
     @SerializedName("supported_codes")
-    val suportedCodes: List<List<CurrencyCode>>
-)
+    val suportedCodes: Map<String, String>
+){
+    fun toCurrencyList(): List<CurrencyCode> {
+        return convertMapToCurrencyList(suportedCodes)
+    }
+}
 
-//NEED TO IMPLEMENT A MAP ON SUPPORTED CODES AND THEN CONVERT TO LIST
+fun convertMapToCurrencyList(currencyMap: Map<String, String>): List<CurrencyCode> {
+    return currencyMap.map { (code, name) -> CurrencyCode(code, name) }
+}
+
 data class CurrencyCode(
     val code: String,
     val name: String
