@@ -62,7 +62,9 @@ class CurrencyFragment : Fragment() {
                 currencyList.map { "${it.currencyCode} - ${it.currencyName}" }
             )
             autocomplete.setAdapter(adapter)
+            autocomplete.threshold = 1
             autocomplete2.setAdapter(adapter)
+            autocomplete2.threshold = 1
             autocomplete.setOnItemClickListener { parent, view, position, id ->
                 positionSelectedCurrency = position
                 val selectedCurrency = currencyList[position]
