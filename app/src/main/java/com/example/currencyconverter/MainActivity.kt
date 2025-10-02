@@ -16,6 +16,7 @@ import com.example.currencyconverter.Adapters.DatabaseAdapter
 import com.example.currencyconverter.Adapters.RetrofitAdapter
 import com.example.currencyconverter.Classes.Currencies
 import com.example.currencyconverter.Classes.Currency
+import com.example.currencyconverter.Classes.CurrencyCode
 import com.example.currencyconverter.Fragments.CurrencyFragment
 import com.example.currencyconverter.Fragments.ExchangeFragment
 import com.example.currencyconverter.Fragments.HistorialFragment
@@ -62,10 +63,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call<Currency?>,response: Response<Currency?>) {
                 val currecyDB = DatabaseAdapter.getDatabase(this@MainActivity)
                 if (response.isSuccessful) {
-                    val responseData = response.body()?.suportedCodes
+                    val responseData: List<CurrencyCode>? = response.body()?.toCurrencyList()
                     if (responseData != null) {
-                        Log.i("GET_CODES_API_SUCCESS", "Fetched ${responseData.size} currencies from API.")
-
+                        for (currency in responseData) {
+                            val currencies = Currencies(currencyCode = currency.code, currencyName = currency.name, currencySymbol = getCurrencySymbol(currency.code))
+                            GlobalScope.launch(Dispatchers.IO) {
+                                currecyDB.currencyDao().insertCurrency(currencies)
+                            }
+                        }
                     }else {
                         Log.w("GET_CODES_API_SUCCESS_NO_BODY", "Response successful but body was null. Code: ${response.code()}")
                     }
