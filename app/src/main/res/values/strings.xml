@@ -7,4 +7,10 @@
     <string name="converter">Converter</string>
     <string name="exchange_from_photo">Exchange from Photo</string>
     <string name="historial">Historial</string>
+    <string name="currencyDescription">Check lives rates and convert currencies easily.</string>
+    <string name="amount">Amount</string>
+    <string name="converted_amount">Converted Amount</string>
+    <string name="convert">Convert</string>
+    <string name="indicative_exchange_rate">Indicative Exchange Rate</string>
+    <string name="currency_converter">Currency Converter</string>
 </resources>

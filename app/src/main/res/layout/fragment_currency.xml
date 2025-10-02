@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Currency Converter"
+            android:text="@string/currency_converter"
             android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +32,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/poppins_regular"
-            android:text="Check lives rates and convert currencies easily."
+            android:text="@string/currencyDescription"
             android:textAlignment="center"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -71,7 +71,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:text="Amount"
+                    android:text="@string/amount"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -134,7 +134,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:text="Converted Amount"
+                    android:text="@string/converted_amount"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/vertical_line" />
@@ -190,7 +190,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Convert"
+            android:text="@string/convert"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
@@ -201,7 +201,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/poppins_light"
-            android:text="Indicative Exchange Rate"
+            android:text="@string/indicative_exchange_rate"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
