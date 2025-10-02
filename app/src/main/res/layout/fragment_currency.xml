@@ -155,7 +155,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
-                        android:inputType="none"
+                        android:inputType="text"
                         android:singleLine="true"
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -188,7 +188,7 @@
             android:id="@+id/button"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="Convert"
             app:layout_constraintEnd_toEndOf="parent"
@@ -199,6 +199,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
             android:fontFamily="@font/poppins_light"
             android:text="Indicative Exchange Rate"
             android:textSize="14sp"

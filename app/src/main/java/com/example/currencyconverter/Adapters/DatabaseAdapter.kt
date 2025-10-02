@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.currencyconverter.Classes.Currencies
 import com.example.currencyconverter.CurrencyDao
 
-@Database(entities = [Currencies::class], version = 1, exportSchema = false)
+@Database(entities = [Currencies::class], version = 2, exportSchema = false)
 abstract class DatabaseAdapter: RoomDatabase() {
     abstract fun currencyDao(): CurrencyDao
     companion object {
@@ -17,10 +17,11 @@ abstract class DatabaseAdapter: RoomDatabase() {
             return INSTANCE?:
                 synchronized(this) {
                     val instance = INSTANCE ?: Room.databaseBuilder(
-                        context.applicationContext,
-                        DatabaseAdapter::class.java,
-                        "currency_database"
-                    ).build()
+                                        context.applicationContext,
+                                        DatabaseAdapter::class.java,
+                                        "currency_database"
+                                    ).fallbackToDestructiveMigration(false)
+                        .build()
                     INSTANCE = instance
                     instance
                 }

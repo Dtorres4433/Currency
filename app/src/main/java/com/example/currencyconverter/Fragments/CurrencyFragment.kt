@@ -56,28 +56,34 @@ class CurrencyFragment : Fragment() {
         val swapButton = view.findViewById<View>(R.id.swap_button)
         val currencyLiveData = DatabaseAdapter.getDatabase(requireContext()).currencyDao().getAllCurrencies()
         currencyLiveData.observe(viewLifecycleOwner) { currencyList ->
-            val adapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                currencyList.map { "${it.currencyCode} - ${it.currencyName}" }
-            )
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, currencyList.map { "${it.currencyCode} - ${it.currencyName}" })
+            val adapter2 = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, currencyList.map { "${it.currencyCode} - ${it.currencyName}" })
+
             autocomplete.setAdapter(adapter)
             autocomplete.threshold = 1
-            autocomplete2.setAdapter(adapter)
+            autocomplete2.setAdapter(adapter2)
             autocomplete2.threshold = 1
             autocomplete.setOnItemClickListener { parent, view, position, id ->
-                positionSelectedCurrency = position
-                val selectedCurrency = currencyList[position]
-                autocomplete.setText(selectedCurrency.currencyName, false)
-                baseCode = selectedCurrency.currencyCode
-                baseSymbol = selectedCurrency.currencySymbol ?: ""
+                val selectedString = parent.getItemAtPosition(position) as String
+                val code = selectedString.substringBefore(" - ").trim()
+                val selectedCurrency = currencyList.find { it.currencyCode == code }
+                if (selectedCurrency != null) {
+                    baseCode = selectedCurrency.currencyCode
+                    baseSymbol = selectedCurrency.currencySymbol ?: ""
+                    positionSelectedCurrency = currencyList.indexOf(selectedCurrency)
+                    autocomplete.setText(selectedCurrency.currencyName, false)
+                }
             }
             autocomplete2.setOnItemClickListener { parent, view, position, id ->
-                positionSelectedCurrency2 = position
-                val selectedCurrency2 = currencyList[position]
-                autocomplete2.setText(selectedCurrency2.currencyName, false)
-                resultCode = selectedCurrency2.currencyCode
-                resultSymbol = selectedCurrency2.currencySymbol ?: ""
+                val selectedString2 = parent.getItemAtPosition(position) as String
+                val code2 = selectedString2.substringBefore(" - ").trim()
+                val selectedCurrency2 = currencyList.find { it.currencyCode == code2 }
+                if (selectedCurrency2 != null) {
+                    resultCode = selectedCurrency2.currencyCode
+                    resultSymbol = selectedCurrency2.currencySymbol ?: ""
+                    positionSelectedCurrency = currencyList.indexOf(selectedCurrency2)
+                    autocomplete2.setText(selectedCurrency2.currencyName, false)
+                }
             }
         }
         convertButton.setOnClickListener {
@@ -106,7 +112,7 @@ class CurrencyFragment : Fragment() {
             @SuppressLint("SetTextI18n")
             override fun onResponse(call: Call<Rates>, response: Response<Rates>) {
                 val rate = response.body()?.conversion_rate ?: 0.0
-                textExchangeRate.text = "1 $baseCode = $rate $resultCode"
+                textExchangeRate.text = "1 $baseCode = ${rate.toBigDecimal()} $resultCode"
                 onResult(rate)
             }
             override fun onFailure(call: Call<Rates>, t: Throwable) {
