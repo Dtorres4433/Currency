@@ -20,7 +20,6 @@ import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.text.toDouble
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -88,7 +87,7 @@ class CurrencyFragment : Fragment() {
         }
         convertButton.setOnClickListener {
             val amount = textInputEditTextBase.text.toString().toDoubleOrNull()
-            if (amount != null && baseCode != null && resultCode != null) {
+            if (amount != null) {
                 getExchange(baseCode, resultCode) { rate ->
                     val convertedAmount = amount * rate
                     val formattedAmount = String.format("%.2f", convertedAmount)
@@ -158,15 +157,6 @@ class CurrencyFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CurrencyFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance() =
             CurrencyFragment().apply {
